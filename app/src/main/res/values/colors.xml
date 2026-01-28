@@ -7,4 +7,11 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-</resources>
+
+    <color name="background">#FFFFFDF9</color>
+    <color name="surface_input">#4DDEDBD4</color>
+    <color name="outline">#FFDEDBD4</color>
+    <color name="overlay">#FF080603</color> // 70%
+    <color name="text_primary">#FF011A0E</color>
+    <color name="text_secondary">#FF595447</color>
+ </resources>
