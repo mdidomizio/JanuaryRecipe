@@ -31,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.januaryrecipe.R
 import com.example.januaryrecipe.data.Recipe
 import com.example.januaryrecipe.ui.theme.InstrumentSerif
@@ -41,19 +42,28 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     // onRecipeClicked: () -> Unit,
+    homeViewModel: HomeViewModel = viewModel(),
     modifier: Modifier = Modifier
 ) {
     val backgroundColor = colorResource(R.color.background)
     var searchQuery by remember { mutableStateOf("") }
-    val filteredRecipes = if (searchQuery.isEmpty()) {
+
+    val favoritesOrder = homeViewModel.favorites
+
+    val allMatching = if (searchQuery.isEmpty()) {
         Recipe.entries
     } else {
         Recipe.entries.filter {
             it.title.contains(searchQuery, ignoreCase = true)
         }
     }
+    val pinned = favoritesOrder.mapNotNull { favTitle ->
+        allMatching.find { it.title == favTitle }
+    }
+    val others = allMatching.filterNot { it.title in favoritesOrder }
+    val displayedRecipes = pinned + others
 
-    val snackbarHostState =  remember { SnackbarHostState() }
+    val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
@@ -78,7 +88,7 @@ fun HomeScreen(
             SnackbarHost(hostState = snackbarHostState) { data ->
                 IconSnackbar(data)
             }
-                       },
+        },
         containerColor = backgroundColor,
         modifier = modifier
     ) { innerPadding ->
@@ -103,23 +113,32 @@ fun HomeScreen(
                     .padding(bottom = 8.dp)
             ) {
                 items(
-                    items = filteredRecipes,
+                    items = displayedRecipes,
                     key = { it.title }
                 ) { recipe ->
-                    val isFavorite = false /*favouriteViewModel.isFavourite(recipe.title)*/
+                    val isFavorite = homeViewModel.isFavorite(recipe.title)
                     RecipeCard(
                         recipe = recipe,
                         onCardClicked = {},
                         onFavoriteClicked = {
+                            val willBeFavorite = !isFavorite
+                            homeViewModel.toggleFavorite(recipe)
+
                             scope.launch {
                                 snackbarHostState.showSnackbar(
                                     IconSnackbarVisuals(
                                         message =
-                                    if (!isFavorite) {
-                                        context.getString(R.string.favorites_recipe_added, recipe.title)
-                                    } else {
-                                        context.getString(R.string.favorites_recipe_removed, recipe.title)
-                                    },
+                                            if (willBeFavorite) {
+                                                context.getString(
+                                                    R.string.favorites_recipe_added,
+                                                    recipe.title
+                                                )
+                                            } else {
+                                                context.getString(
+                                                    R.string.favorites_recipe_removed,
+                                                    recipe.title
+                                                )
+                                            },
                                         icon = Icons.Filled.FavoriteBorder,
                                         duration = SnackbarDuration.Short
                                     )
