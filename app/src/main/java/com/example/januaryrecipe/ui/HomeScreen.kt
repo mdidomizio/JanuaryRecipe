@@ -1,22 +1,20 @@
 package com.example.januaryrecipe.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
+import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -24,9 +22,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -34,9 +33,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.januaryrecipe.R
 import com.example.januaryrecipe.data.Recipe
-import com.example.januaryrecipe.ui.theme.InstrumentSans
 import com.example.januaryrecipe.ui.theme.InstrumentSerif
+import kotlinx.coroutines.launch
 
+@SuppressLint("StringFormatInvalid")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -49,10 +49,13 @@ fun HomeScreen(
         Recipe.entries
     } else {
         Recipe.entries.filter {
-            it.title.contains(searchQuery, ignoreCase = true) ||
-                    it.ingredients.contains(searchQuery, ignoreCase = true)
+            it.title.contains(searchQuery, ignoreCase = true)
         }
     }
+
+    val snackbarHostState =  remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -71,60 +74,61 @@ fun HomeScreen(
                 )
             )
         },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                IconSnackbar(data)
+            }
+                       },
         containerColor = backgroundColor,
         modifier = modifier
     ) { innerPadding ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .padding(horizontal = 16.dp)
                 .fillMaxSize()
         ) {
-            item {
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                Icons.Default.Search,
-                                contentDescription = stringResource(id = R.string.search_bar_placeholder),
-                                tint = colorResource(id = R.color.text_secondary)
-                            )
-                            Text(
-                                text = stringResource(id = R.string.search_bar_placeholder),
-                                fontFamily = InstrumentSans,
-                                fontWeight = FontWeight.Normal,
-                                fontSize = 16.sp,
-                                color = colorResource(id = R.color.text_secondary),
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                        }
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = colorResource(id = R.color.surface_input),
-                        unfocusedContainerColor = colorResource(id = R.color.surface_input ),
-                        focusedBorderColor = colorResource(id = R.color.outline),
-                        unfocusedBorderColor = colorResource(id = R.color.outline)
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                )
+            SearchBarHome(
+                searchQuery = searchQuery,
+                onSearchQueryChanged = { newQuery ->
+                    searchQuery = newQuery
+                }
+            )
 
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-            items(
-                items = filteredRecipes,
-                key = { it.title}
-            ) { recipe ->
-                RecipeCard(
-                    recipe = recipe,
-                    onCardClicked = {}
-                )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(bottom = 8.dp)
+            ) {
+                items(
+                    items = filteredRecipes,
+                    key = { it.title }
+                ) { recipe ->
+                    val isFavorite = false /*favouriteViewModel.isFavourite(recipe.title)*/
+                    RecipeCard(
+                        recipe = recipe,
+                        onCardClicked = {},
+                        onFavoriteClicked = {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    IconSnackbarVisuals(
+                                        message =
+                                    if (!isFavorite) {
+                                        context.getString(R.string.favorites_recipe_added, recipe.title)
+                                    } else {
+                                        context.getString(R.string.favorites_recipe_removed, recipe.title)
+                                    },
+                                        icon = Icons.Filled.FavoriteBorder,
+                                        duration = SnackbarDuration.Short
+                                    )
+                                )
+                            }
+                        },
+                        isFavorite = isFavorite
+                    )
+                }
             }
         }
     }

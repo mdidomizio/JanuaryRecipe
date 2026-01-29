@@ -51,6 +51,12 @@ dependencies {
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.3.0")
     implementation(libs.androidx.navigation.compose)
 
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
+    implementation(libs.androidx.material3)
+
+    // Material icons (extended) for Icons.Default.*
+    implementation("androidx.compose.material:material-icons-extended")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

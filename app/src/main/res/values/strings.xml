@@ -2,5 +2,8 @@
     <string name="app_name">JanuaryRecipe</string>
     <string name="home_screen_title">January Recipe</string>
     <string name="search_bar_placeholder">Search for recipes</string>
-    <string name="recipe_image_content_description">Image for ${recipe.name}</string>
+    <string name="recipe_image_content_description">Recipe image for %1$s</string>
+    <string name="favorite_icon_content_description">Mark recipe as favorite</string>
+    <string name="favorites_recipe_added">Added to Favorites</string>
+    <string name="favorites_recipe_removed">Removed from Favorites</string>
 </resources>
