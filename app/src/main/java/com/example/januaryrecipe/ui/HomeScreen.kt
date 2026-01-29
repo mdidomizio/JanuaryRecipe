@@ -18,6 +18,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.januaryrecipe.R
 import com.example.januaryrecipe.data.Recipe
@@ -49,6 +51,8 @@ fun HomeScreen(
     var searchQuery by remember { mutableStateOf("") }
 
     val favoritesOrder = homeViewModel.favorites
+    val isRefreshing by homeViewModel.isRefreshing.collectAsStateWithLifecycle()
+
 
     val allMatching = if (searchQuery.isEmpty()) {
         Recipe.entries
@@ -107,27 +111,32 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            LazyColumn(
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = { homeViewModel.refresh() },
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(bottom = 8.dp)
             ) {
-                items(
-                    items = displayedRecipes,
-                    key = { it.title }
-                ) { recipe ->
-                    val isFavorite = homeViewModel.isFavorite(recipe.title)
-                    RecipeCard(
-                        recipe = recipe,
-                        onCardClicked = {},
-                        onFavoriteClicked = {
-                            val willBeFavorite = !isFavorite
-                            homeViewModel.toggleFavorite(recipe)
+                LazyColumn(
+                    modifier = Modifier
+                        //.weight(1f)
+                        .padding(bottom = 8.dp)
+                ) {
+                    items(
+                        items = displayedRecipes,
+                        key = { it.title }
+                    ) { recipe ->
+                        val isFavorite = homeViewModel.isFavorite(recipe.title)
+                        RecipeCard(
+                            recipe = recipe,
+                            onCardClicked = {},
+                            onFavoriteClicked = {
+                                val willBeFavorite = !isFavorite
+                                homeViewModel.toggleFavorite(recipe)
 
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    IconSnackbarVisuals(
-                                        message =
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        IconSnackbarVisuals(
+                                            message =
                                             if (willBeFavorite) {
                                                 context.getString(
                                                     R.string.favorites_recipe_added,
@@ -139,14 +148,15 @@ fun HomeScreen(
                                                     recipe.title
                                                 )
                                             },
-                                        icon = Icons.Filled.FavoriteBorder,
-                                        duration = SnackbarDuration.Short
+                                            icon = Icons.Filled.FavoriteBorder,
+                                            duration = SnackbarDuration.Short
+                                        )
                                     )
-                                )
-                            }
-                        },
-                        isFavorite = isFavorite
-                    )
+                                }
+                            },
+                            isFavorite = isFavorite
+                        )
+                    }
                 }
             }
         }
