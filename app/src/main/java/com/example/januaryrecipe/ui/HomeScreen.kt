@@ -148,7 +148,7 @@ fun HomeScreen(
         selectedRecipe?.let {
             RecipeDialog(
                 recipe = it,
-                onDismissRequestClicked = {},
+                onDismissRequestClicked = { selectedRecipe = null },
                 windowWidthSizeClass = windowWidthSizeClass
             )
         }
