@@ -21,8 +21,7 @@ fun CompactRecipeList(
     recipes: List<Recipe>,
     homeViewModel: HomeViewModel,
     snackbarHostState: SnackbarHostState,
-    onRecipeClicked: (Recipe) -> Unit,
-    modifier: Modifier = Modifier
+    onRecipeClicked: (Recipe) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current

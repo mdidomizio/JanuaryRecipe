@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
-import com.example.januaryrecipe.navigation.AppNavigation
+import com.example.januaryrecipe.ui.HomeScreen
 import com.example.januaryrecipe.ui.theme.JanuaryRecipeTheme
 
 class MainActivity : ComponentActivity() {
@@ -17,11 +17,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             JanuaryRecipeTheme {
                 val windowSizeClass = calculateWindowSizeClass(this)
-                AppNavigation(
+                HomeScreen(
                     windowWidthSizeClass =  windowSizeClass.widthSizeClass
                 )
             }
         }
     }
-
 }

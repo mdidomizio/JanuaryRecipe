@@ -40,48 +40,50 @@ fun RecipeCard(
     isFavorite: Boolean,
     modifier: Modifier = Modifier
 ) {
-
-        Column(modifier = modifier){
-            Box{
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(220.dp)
-                        .clickable(onClick = onCardClicked)
-                ) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(recipe.image)
-                            .memoryCacheKey(recipe.name)
-                            .diskCacheKey(recipe.name)
-                            .memoryCachePolicy(CachePolicy.ENABLED)
-                            .diskCachePolicy(CachePolicy.ENABLED)
-                            .build(),
-                        contentDescription = stringResource(R.string.recipe_image_content_description, recipe.title),
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                }
-                    IconButton(
-                        onClick = onFavoriteClicked,
-                        modifier = Modifier.align(Alignment.TopEnd)
-                    ) {
-                        Icon(
-                            imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Default.FavoriteBorder,
-                            contentDescription = stringResource(id = R.string.favorite_icon_content_description),
-                            tint = Color.White
-                        )
-                    }
+    Column(modifier = modifier) {
+        Box {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(220.dp)
+                    .clickable(onClick = onCardClicked)
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(recipe.image)
+                        .memoryCacheKey(recipe.name)
+                        .diskCacheKey(recipe.name)
+                        .memoryCachePolicy(CachePolicy.ENABLED)
+                        .diskCachePolicy(CachePolicy.ENABLED)
+                        .build(),
+                    contentDescription = stringResource(
+                        R.string.recipe_image_content_description,
+                        recipe.title
+                    ),
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = recipe.title,
-                fontFamily = InstrumentSerif,
-                fontWeight = FontWeight.Normal,
-                fontSize = 28.sp,
-                color = colorResource(id = R.color.text_primary)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+            IconButton(
+                onClick = onFavoriteClicked,
+                modifier = Modifier.align(Alignment.TopEnd)
+            ) {
+                Icon(
+                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Default.FavoriteBorder,
+                    contentDescription = stringResource(id = R.string.favorite_icon_content_description),
+                    tint = Color.White
+                )
+            }
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = recipe.title,
+            fontFamily = InstrumentSerif,
+            fontWeight = FontWeight.Normal,
+            fontSize = 28.sp,
+            color = colorResource(id = R.color.text_primary)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
     }
+}
