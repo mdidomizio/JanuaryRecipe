@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -13,6 +14,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,16 +40,32 @@ import com.example.januaryrecipe.ui.theme.InstrumentSerif
 fun RecipeDialog(
     recipe: Recipe,
     onDismissRequestClicked: () -> Unit,
+    windowWidthSizeClass: WindowWidthSizeClass,
     modifier: Modifier = Modifier
 ) {
     Dialog(
         onDismissRequest = onDismissRequestClicked,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
+        val cardModifier = when (windowWidthSizeClass) {
+            WindowWidthSizeClass.Compact -> {
+                modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            }
+
+            WindowWidthSizeClass.Medium, WindowWidthSizeClass.Expanded -> {
+                modifier.width(520.dp)
+            }
+
+            else -> {
+                modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            }
+        }
         Card(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+            modifier = cardModifier,
             shape = RoundedCornerShape(12.dp),
             border = BorderStroke(1.dp, Color.White),
             colors = CardDefaults.cardColors(colorResource(id = R.color.background))

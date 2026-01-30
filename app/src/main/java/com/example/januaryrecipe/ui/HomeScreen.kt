@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +46,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    windowWidthSizeClass: WindowWidthSizeClass,
     homeViewModel: HomeViewModel = viewModel(),
     modifier: Modifier = Modifier
 ) {
@@ -131,44 +133,22 @@ fun HomeScreen(
                         )
                     }
                 } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .padding(bottom = 8.dp)
-                    ) {
-                        items(
-                            items = displayedRecipes,
-                            key = { it.title }
-                        ) { recipe ->
-                            val isFavorite = homeViewModel.isFavorite(recipe.title)
-                            RecipeCard(
-                                recipe = recipe,
-                                onCardClicked = { selectedRecipe = recipe },
-                                onFavoriteClicked = {
-                                    val willBeFavorite = !isFavorite
-                                    homeViewModel.toggleFavorite(recipe)
+                    when (windowWidthSizeClass) {
+                        WindowWidthSizeClass.Compact -> {
+                            CompactRecipeList(
+                                recipes =displayedRecipes,
+                                homeViewModel = homeViewModel,
+                                snackbarHostState = snackbarHostState,
+                                onRecipeClicked = { selectedRecipe = it}
+                            )
+                        }
 
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            IconSnackbarVisuals(
-                                                message =
-                                                if (willBeFavorite) {
-                                                    context.getString(
-                                                        R.string.favorites_recipe_added,
-                                                        recipe.title
-                                                    )
-                                                } else {
-                                                    context.getString(
-                                                        R.string.favorites_recipe_removed,
-                                                        recipe.title
-                                                    )
-                                                },
-                                                icon = Icons.Filled.FavoriteBorder,
-                                                duration = SnackbarDuration.Short
-                                            )
-                                        )
-                                    }
-                                },
-                                isFavorite = isFavorite
+                        WindowWidthSizeClass.Medium,  WindowWidthSizeClass.Expanded -> {
+                            MediumRecipeGrid(
+                                recipes =displayedRecipes,
+                                homeViewModel = homeViewModel,
+                                snackbarHostState = snackbarHostState,
+                                onRecipeClicked = { selectedRecipe = it}
                             )
                         }
                     }
@@ -176,7 +156,11 @@ fun HomeScreen(
             }
         }
         selectedRecipe?.let {
-            RecipeDialog(recipe = it, onDismissRequestClicked = { selectedRecipe = null })
+            RecipeDialog(
+                recipe = it,
+                onDismissRequestClicked = { selectedRecipe = null },
+                windowWidthSizeClass = windowWidthSizeClass
+            )
         }
     }
 }
