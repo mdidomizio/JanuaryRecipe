@@ -6,4 +6,6 @@
     <string name="favorite_icon_content_description">Mark recipe as favorite</string>
     <string name="favorites_recipe_added">Added to Favorites</string>
     <string name="favorites_recipe_removed">Removed from Favorites</string>
+    <string name="no_search_result">No recipes match your search</string>
+    <string name="recipe_dialog_done_button">Done</string>
 </resources>

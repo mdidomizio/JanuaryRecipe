@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import com.example.januaryrecipe.R
 import com.example.januaryrecipe.data.Recipe
@@ -53,6 +54,8 @@ fun RecipeCard(
                             .data(recipe.image)
                             .memoryCacheKey(recipe.name)
                             .diskCacheKey(recipe.name)
+                            .memoryCachePolicy(CachePolicy.ENABLED)
+                            .diskCachePolicy(CachePolicy.ENABLED)
                             .build(),
                         contentDescription = stringResource(R.string.recipe_image_content_description, recipe.title),
                         modifier = Modifier.fillMaxSize(),

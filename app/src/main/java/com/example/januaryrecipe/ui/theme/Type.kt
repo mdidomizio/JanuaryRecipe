@@ -9,9 +9,10 @@ import com.example.januaryrecipe.R
 // Set of Material typography styles to start with
 val InstrumentSans = FontFamily(
     Font(R.font.instrument_sans_regular, FontWeight.Normal),
-    Font(R.font.instrument_sans_medium, FontWeight.Medium),
+    /*Font(R.font.instrument_sans_medium, FontWeight.Medium),
     Font(R.font.instrument_sans_bold, FontWeight.Bold),
-    Font(R.font.instrument_sans_semi_bold, FontWeight.SemiBold)
+    Font(R.font.instrument_sans_semi_bold, FontWeight.SemiBold),*/
+    Font(R.font.instrument_sans_italic, FontWeight.Light)
 )
 
 val InstrumentSerif = FontFamily(

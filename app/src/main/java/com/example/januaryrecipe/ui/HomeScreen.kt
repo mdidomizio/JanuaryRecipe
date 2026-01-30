@@ -1,6 +1,7 @@
 package com.example.januaryrecipe.ui
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -43,12 +45,12 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    // onRecipeClicked: () -> Unit,
     homeViewModel: HomeViewModel = viewModel(),
     modifier: Modifier = Modifier
 ) {
     val backgroundColor = colorResource(R.color.background)
     var searchQuery by remember { mutableStateOf("") }
+    var selectedRecipe by remember { mutableStateOf<Recipe?>(null) }
 
     val favoritesOrder = homeViewModel.favorites
     val isRefreshing by homeViewModel.isRefreshing.collectAsStateWithLifecycle()
@@ -116,49 +118,65 @@ fun HomeScreen(
                 onRefresh = { homeViewModel.refresh() },
                 modifier = Modifier
             ) {
-                LazyColumn(
-                    modifier = Modifier
-                        //.weight(1f)
-                        .padding(bottom = 8.dp)
-                ) {
-                    items(
-                        items = displayedRecipes,
-                        key = { it.title }
-                    ) { recipe ->
-                        val isFavorite = homeViewModel.isFavorite(recipe.title)
-                        RecipeCard(
-                            recipe = recipe,
-                            onCardClicked = {},
-                            onFavoriteClicked = {
-                                val willBeFavorite = !isFavorite
-                                homeViewModel.toggleFavorite(recipe)
-
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        IconSnackbarVisuals(
-                                            message =
-                                            if (willBeFavorite) {
-                                                context.getString(
-                                                    R.string.favorites_recipe_added,
-                                                    recipe.title
-                                                )
-                                            } else {
-                                                context.getString(
-                                                    R.string.favorites_recipe_removed,
-                                                    recipe.title
-                                                )
-                                            },
-                                            icon = Icons.Filled.FavoriteBorder,
-                                            duration = SnackbarDuration.Short
-                                        )
-                                    )
-                                }
-                            },
-                            isFavorite = isFavorite
+                if (displayedRecipes.isEmpty()){
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.TopCenter
+                    ) {
+                        Text(
+                            text = stringResource(id =  R.string.no_search_result),
+                            fontFamily = InstrumentSerif,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 28.sp
                         )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .padding(bottom = 8.dp)
+                    ) {
+                        items(
+                            items = displayedRecipes,
+                            key = { it.title }
+                        ) { recipe ->
+                            val isFavorite = homeViewModel.isFavorite(recipe.title)
+                            RecipeCard(
+                                recipe = recipe,
+                                onCardClicked = { selectedRecipe = recipe },
+                                onFavoriteClicked = {
+                                    val willBeFavorite = !isFavorite
+                                    homeViewModel.toggleFavorite(recipe)
+
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            IconSnackbarVisuals(
+                                                message =
+                                                if (willBeFavorite) {
+                                                    context.getString(
+                                                        R.string.favorites_recipe_added,
+                                                        recipe.title
+                                                    )
+                                                } else {
+                                                    context.getString(
+                                                        R.string.favorites_recipe_removed,
+                                                        recipe.title
+                                                    )
+                                                },
+                                                icon = Icons.Filled.FavoriteBorder,
+                                                duration = SnackbarDuration.Short
+                                            )
+                                        )
+                                    }
+                                },
+                                isFavorite = isFavorite
+                            )
+                        }
                     }
                 }
             }
+        }
+        selectedRecipe?.let {
+            RecipeDialog(recipe = it, onDismissRequestClicked = { selectedRecipe = null })
         }
     }
 }
